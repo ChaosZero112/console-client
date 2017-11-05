@@ -173,31 +173,30 @@ static void status_change(pstatus_t* status) {
   static int mount_set=0;
   std::cout << "Down: " <<  status->downloadstr << "| Up: " << status->uploadstr <<", status is " << status2string(status->status) << std::endl;
   *clib::pclsync_lib::get_lib().status_ = *status;
-  if (status->status==PSTATUS_LOGIN_REQUIRED){
-    if (clib::pclsync_lib::get_lib().get_password().empty())
-      clib::pclsync_lib::get_lib().get_pass_from_console();
-//std::cout << "Username: " <<  clib::pclsync_lib::get_lib().get_username().c_str() << "| Password: " << clib::pclsync_lib::get_lib().get_password().c_str() << std::endl;
-    psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
-    std::cout << "logging in" << std::endl;
-  }
-  else if (status->status==PSTATUS_BAD_LOGIN_DATA){
-    if (!clib::pclsync_lib::get_lib().newuser_) {
-      clib::pclsync_lib::get_lib().get_pass_from_console();
-      psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
-    }
-    else {
-    std::cout << "registering" << std::endl;
-    if (psync_register(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(),1, NULL)){
-      std::cout << "both login and registration failed" << std::endl;
-      exit(1);
-    }
-    else{
-      std::cout << "registered, logging in" << std::endl;
-      psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
-    }
-      
-    }
-  }
+
+ // if (status->status==PSTATUS_LOGIN_REQUIRED){
+  //  psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+
+  std::cout << "logging in" << std::endl;
+ // }
+  //else if (status->status==PSTATUS_BAD_LOGIN_DATA){
+//     if (!clib::pclsync_lib::get_lib().newuser_) {
+//      // clib::pclsync_lib::get_lib().get_pass_from_console();
+//      // psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+//     }
+//     else {
+//     std::cout << "registering" << std::endl;
+//  //   if (psync_register(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(),1, NULL)){
+//      // std::cout << "both login and registration failed" << std::endl;
+//      // exit(1);
+//     }
+//     else{
+//       std::cout << "registered, logging in" << std::endl;
+//       psync_set_user_pass(clib::pclsync_lib::get_lib().get_username().c_str(), clib::pclsync_lib::get_lib().get_password().c_str(), (int) clib::pclsync_lib::get_lib().save_pass_);
+//     }
+//       
+//     }
+ // }
   if (status->status==PSTATUS_READY || status->status==PSTATUS_UPLOADING || status->status==PSTATUS_DOWNLOADING || status->status==PSTATUS_DOWNLOADINGANDUPLOADING){
     if (!cryptocheck){
       cryptocheck=1;
@@ -208,11 +207,13 @@ static void status_change(pstatus_t* status) {
     psync_fs_start();
   }
   if (clib::pclsync_lib::get_lib().status_callback_)
-    clib::pclsync_lib::get_lib().status_callback_((int)status->status, status2string(status->status));
+    clib::pclsync_lib::get_lib().status_callback_((int)status->status, status2string(status->status),
+      status->downloadstr, status->uploadstr
+    );
 }
 
 int clib::pclsync_lib::statrt_crypto (const char* pass, void * rep) {
-  std::cout << "calling startcrypto pass: "<<pass << std::endl;
+//  std::cout << "calling startcrypto pass: "<<pass << std::endl;
   get_lib().crypto_pass_ = pass;
   return lib_setup_cripto();
 }
@@ -230,11 +231,11 @@ int clib::pclsync_lib::list_sync_folders (const char* path, void * rep) {
   memcpy(rep, folders, sizeof(folders));
   
 }
-static const std::string client_name = " Console Client v.2.0.1";
+static const std::string client_name = " Electron Client v.2.1.0";
 int clib::pclsync_lib::init()//std::string& username, std::string& password, std::string* crypto_pass, int setup_crypto, int usesrypto_userpass)
 {
-  std::string software_string = exec("lsb_release -ds");
-  psync_set_software_string(software_string.append(client_name).c_str());
+  //std::string software_string = exec("lsb_release -ds");
+  //сpsync_set_software_string(software_string.append(client_name).c_str());
   if (setup_crypto_ && crypto_pass_.empty() )
     return 3;
  
@@ -257,12 +258,17 @@ int clib::pclsync_lib::init()//std::string& username, std::string& password, std
   char * username_old = psync_get_username();
 
   if (username_old){
-    if (username_.compare(username_old) != 0){
-      std::cout << "logged in with user " << username_old <<", not "<< username_ <<", unlinking"<<std::endl;
-      psync_unlink();
-      psync_free(username_old);
-      return 2;
+    if (!username_.empty()) {
+      if (username_.compare(username_old) != 0){
+	std::cout << "logged in with user " << username_old <<", not "<< username_ <<", unlinking"<<std::endl;
+	psync_unlink();
+	psync_free(username_old);
+	return 2;
+      }
+    } else {
+      username_.append(username_old);
     }
+    
     psync_free(username_old);
   }
   
@@ -278,7 +284,9 @@ int clib::pclsync_lib::login(const char* user, const char* pass, int save) {
   set_username(user);
   set_password(pass);
   set_savepass(bool(save));
+  //std::cout << "Login user ["<<user<<"] pass [" << pass<< "]"<< std::endl;
   psync_set_user_pass(user,pass, save);
+
   return 0;
 }
 
