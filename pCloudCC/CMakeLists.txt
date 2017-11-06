@@ -17,7 +17,6 @@ set (CMAKE_C_FLAGS "-fPIC")
 set (PCLSYNC_PATH ${CMAKE_SOURCE_DIR}/lib/pclsync)
 set (MBEDTLS_PATH ${CMAKE_SOURCE_DIR}/lib/mbedtls)
 set (SQLITE3_PATH ${CMAKE_SOURCE_DIR}/lib/sqlite)
-set (PRJF_PATH  ${CMAKE_SOURCE_DIR}/lib/prjf)
 
 #add_subdirectory(${MBEDTLS_PATH})
 
@@ -53,9 +52,9 @@ include_directories(${OVERLAY_CLENT_PATH})
 add_library(sqlite3 STATIC ${SQLITE3_PATH}/sqlite3.c)
 target_link_libraries(sqlite3 z dl)
 
-add_library(pcloudcc_lib SHARED pclsync_lib_c.cpp pclsync_lib.cpp control_tools.cpp ${OVERLAY_CLENT_PATH}/overlay_client.c ${OVERLAY_CLENT_PATH}/debug.c ${PRJF_PATH}/pRJF.c)
+add_library(pcloudcc_lib SHARED pclsync_lib_c.cpp pclsync_lib.cpp control_tools.cpp ${OVERLAY_CLENT_PATH}/overlay_client.c ${OVERLAY_CLENT_PATH}/debug.c )
 
-target_link_libraries(pcloudcc_lib ${PCLSYNC_PATH}/libpsynclib.a  ${MBEDTLS_PATH}/library/libmbedtls.a fuse pthread sqlite3 udev
+target_link_libraries(pcloudcc_lib ${PCLSYNC_PATH}/libpsynclib.a  ${MBEDTLS_PATH}/library/libmbedtls.a fuse pthread sqlite3
 )
 
 add_executable(pcloudcc main.cpp)
