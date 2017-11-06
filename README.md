@@ -1,4 +1,20 @@
-# pCloud Console Client
+# About
+
+This is a fork of pcloudcom/console-client commit [cbc5842f7b3f8e2351bdb624971730f502f85847](https://github.com/pcloudcom/console-client/commit/cbc5842f7b3f8e2351bdb624971730f502f85847).
+
+The goal of this fork is stay up to date with latest pcloudcom/community commits (while *hopefully* not breaking anything) and allow non-root user access to the pcloud mount.
+
+syslogd support has been added [pull request #1](https://github.com/ChaosZero112/console-client/pull/1) as well as other misc fixes (including [Compilation error #41](https://github.com/pcloudcom/console-client/issues/41)).
+
+There is no support for this build and is provided 'as-is'.
+
+The 'staging' branch contains all commits. You can specify building from the staging branch like so:
+
+> git clone -b staging --single-branch https://github.com/ChaosZero112/console-client.git ./console-client/  
+
+You can see the whole build process below via the original readme.
+
+## pCloud Console Client
 
 This is a simple linux console client for pCloud cloud storage. 
 
@@ -12,7 +28,7 @@ Also requires
 [CMake](https://cmake.org/) build system.  
 
 On Ubuntu you can run the following command:  
-> sudo apt-get install cmake zlib1g-dev libboost-system-dev libboost-program-options-dev libpthread-stubs0-dev libfuse-dev  
+> sudo apt-get install cmake zlib1g-dev libboost-system-dev libboost-program-options-dev libpthread-stubs0-dev libfuse-dev build-essentials
 
 ## Build steps
 
